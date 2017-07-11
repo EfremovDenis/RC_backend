@@ -9,24 +9,25 @@ def db_init(connection, empty_db=False):
     cursor = connection.cursor()
 
     if empty_db:
-        drop_db(cursor)
+        drop_db(connection)
 
     create_table_tag = """
-    CREATE TABLE IF NOT EXISTS tag (
-    id INTEGER PRIMARY KEY,
-    name VARCHAR(30) NOT NULL,
-    from_bit INTEGER NOT NULL,
-    bit_len INTEGER NOT NULL);"""
+        CREATE TABLE IF NOT EXISTS tag (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR(30) NOT NULL,
+        from_bit INTEGER NOT NULL,
+        bit_len INTEGER NOT NULL,
+        sensor_id INTEGER NOT NULL UNIQUE);"""
     cursor.execute(create_table_tag)
 
     print('Table Tag successfully created')
 
     create_table_batch = """
-    CREATE TABLE IF NOT EXISTS batch (
-    id INTEGER PRIMARY KEY,
-    start_date DATETIME NOT NULL,
-    stop_date DATETIME,
-    description VARCHAR(150));"""
+        CREATE TABLE IF NOT EXISTS batch (
+        id INTEGER PRIMARY KEY,
+        start_date DATETIME NOT NULL,
+        stop_date DATETIME,
+        description VARCHAR(150));"""
     cursor.execute(create_table_batch)
 
     print('Table Batch successfully created')
@@ -65,15 +66,16 @@ def drop_db(connection):
 
 
 # TODO: check if bit segment does not matching on already existing bit segments
-# TODO: add insert
-def new_tag(connection, name, from_bit, bit_len):
+# TODO: check the uniqueness of id_protocol
+def new_tag(connection, name, from_bit, bit_len, sensor_id):
     """
-    Creates a new tag in the database.
+    Creates a new tag in the database. In case of bad input raises ValueError
     Args:
         connection: connection object to the database
         name: name of a new tag (not null, string, max_len=30)
         from_bit: non-existing order in connection protocol (via Bluetooth) (not null, int)
         bit_len: size of the value in bits (not null, int)
+        sensor_id: the id of the sensor in the connection protocol
     """
     if name is None:
         raise ValueError('Name can not be null!')
@@ -101,6 +103,20 @@ def new_tag(connection, name, from_bit, bit_len):
     if bit_len <= 0:
         raise ValueError('Bit_len must be grater than 0!')
 
+    # check the uniqueness of sensor_id
+
+    cursor = connection.cursor()
+
+    format_str = """
+    INSERT INTO tag (id, name, from_bit, bit_len, sensor_id)
+    VALUES (NULL, "{name}", "{from_bit}", "{bit_len}", "{sensor_id}");"""
+
+    insert_tag = format_str.format(name=name, from_bit=from_bit, bit_len=bit_len, sensor_id=sensor_id)
+
+    cursor.execute(insert_tag)
+
+    connection.commit()
+    print('New tag [{0}] with id_protocol [1] was successfully created'.format(name, sensor_id))
     return
 
 
