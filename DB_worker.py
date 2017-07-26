@@ -430,7 +430,6 @@ def select_all_tags(connection):
     return all_tags
 
 
-# TODO: some checks
 def select_tag(connection, sensor_id):
     """
     Selects tag with the defined sensor id.
@@ -440,6 +439,12 @@ def select_tag(connection, sensor_id):
     Returns:
         id of the searched tag.
     """
+    if sensor_id is None:
+        raise ValueError('Sensor_id can not be null!')
+
+    if not isinstance(sensor_id, int):
+        raise ValueError('Sensor_id must be int!')
+
     cursor = connection.cursor()
 
     format_str = """
