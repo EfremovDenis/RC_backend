@@ -1,0 +1,9 @@
+BACKEND Basic algorithm:
+
+1) main Starts GUI
+2) from GUI new batch can be started
+	- it starts two new threads: FIFO chanel (SHOULD_WORK=True) and Message Parser (SHOULD_WORK=True)
+3) FIFO chanel in while(SHOULD_WORK) loop listens the bluetooth and saves messages from it (when OK - sends ACK)
+4) Message parser in while(SHOULD_WORK or FIFO_chanel.MessNum > 0) loop gets one message from FIFO chanel and parse it with definition from the DB (reads it only one on the start)
+5) When user stop the batch: FIFO_chanel.SHOULD_WORK=False and Message_parser.SHOULD_WORK=False
+6) When FIFO_chanel.MessNum == 0, app is stopped
