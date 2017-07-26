@@ -1,6 +1,6 @@
 import datetime
-# TODO: GLOBAL TRY CATCH IN ALL FUNCTIONS
-# TODO: WORK WITH STRUCTURED RETURN IN SELECT FUNCTIONS ???
+# TODO (to be discussed): GLOBAL TRY CATCH IN ALL FUNCTIONS ???
+# TODO (to be discussed): WORK WITH STRUCTURED RETURN IN SELECT FUNCTIONS ???
 
 
 def db_init(connection, empty_db=False):
