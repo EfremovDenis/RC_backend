@@ -134,7 +134,7 @@ def new_batch(connection, start_date, description):
     """
     if start_date is None:
         raise ValueError('Start_date can not be null!')
-    if type(start_date) is datetime:
+    if not type(start_date) is datetime.datetime:
         raise ValueError('Start_date must have datetime type!')
 
     if len(description) > 150:
@@ -182,7 +182,7 @@ def close_batch(connection, batch_id, stop_date):
 
     if stop_date is None:
         raise ValueError('Stop_date can not be null!')
-    if type(stop_date) is datetime:
+    if not type(stop_date) is datetime.datetime:
         raise ValueError('Type of Stop_date must be datetime!')
 
     cursor = connection.cursor()
@@ -220,13 +220,15 @@ def new_sample(connection, tag_id, batch_id, time_stamp, value):
 
     if time_stamp is None:
         raise ValueError('Time_stamp can not be null!')
-    if not type(time_stamp) is datetime:
+    if not type(time_stamp) is datetime.datetime:
         raise ValueError('Type of Time_stamp must be datetime!')
 
     if value is None:
         raise ValueError('Value can not be null!')
-    if not isinstance(value, float):
-        raise ValueError('Value must be float!')
+    try:
+        float(value)
+    except ValueError:
+        raise ValueError('Value must be float or int!')
 
     cursor = connection.cursor()
 
