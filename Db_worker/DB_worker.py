@@ -243,7 +243,8 @@ def new_sample(connection, tag_id, batch_id, time_stamp, value):
 
     connection.commit()
 
-    print('The sample under Tag [{0}] and Batch [{1}] was successfully created'.format(tag_id, batch_id))
+    print('The sample under Tag [{0}] and Batch [{1}] for time_stamp [{2}] was successfully created'
+          .format(tag_id, batch_id, time_stamp))
 
     return
 
