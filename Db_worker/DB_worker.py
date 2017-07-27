@@ -1,6 +1,5 @@
 import datetime
 # TODO (to be discussed): GLOBAL TRY CATCH IN ALL FUNCTIONS ???
-# TODO (to be discussed): WORK WITH STRUCTURED RETURN IN SELECT FUNCTIONS ???
 
 
 def db_init(connection, empty_db=False):
@@ -42,7 +41,7 @@ def db_init(connection, empty_db=False):
         id INTEGER PRIMARY KEY,
         tag_id INTEGER NOT NULL,
         batch_id INTEGER NOT NULL,
-        time_stamp DATETIME NOT NULL,
+        time_stamp REAL NOT NULL,
         value REAL,
         FOREIGN KEY(tag_id) REFERENCES tag(id),
         FOREIGN KEY(batch_id) REFERENCES batch(id));"""
@@ -220,8 +219,10 @@ def new_sample(connection, tag_id, batch_id, time_stamp, value):
 
     if time_stamp is None:
         raise ValueError('Time_stamp can not be null!')
-    if not type(time_stamp) is datetime.datetime:
-        raise ValueError('Type of Time_stamp must be datetime!')
+    try:
+        float(time_stamp)
+    except ValueError:
+        raise ValueError('Time_stamp must be float or int!')
 
     if value is None:
         raise ValueError('Value can not be null!')
@@ -562,3 +563,38 @@ def select_tag(connection, tag_id):
     cursor.execute(select_tag_where)
 
     return cursor.fetchall()
+
+
+def select_samples_tag_batch(connection, tag_id, batch_id):
+    """
+    Selects all samples under one batch and one tag.
+    Args:
+        connection: connection object to the database
+        tag_id: the database id of the selected tag
+        batch_id: the database id of the selected batch
+    Returns:
+        all samples under the wanted batch_id and tag_id in format (time_stamp, value)
+    """
+
+    if not select_batch(connection=connection, batch_id=batch_id):
+        TypeError('There is no batch with ID [{0}]'.format(batch_id))
+
+    if not select_tag(connection=connection, tag_id=tag_id):
+        TypeError('There is no tag with ID [{0}]'.format(tag_id))
+
+    cursor = connection.cursor()
+
+    format_str = """SELECT time_stamp, value FROM sample
+            WHERE batch_id = "{batch_id}"
+            AND tag_id = "{tag_id}"
+            ORDER BY time_stamp;"""
+
+    select_sample = format_str.format(batch_id=batch_id, tag_id=tag_id)
+
+    all_samples = []
+    for row in cursor.execute(select_sample):
+        all_samples.append(row)
+
+    connection.commit()
+
+    return all_samples
