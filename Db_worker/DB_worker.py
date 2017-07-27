@@ -181,9 +181,9 @@ def close_batch(connection, batch_id, stop_date):
         TypeError('There is no batch with ID [{0}]'.format(batch_id))
 
     if stop_date is None:
-        raise ValueError('Time_stamp can not be null!')
-    if not type(stop_date) is datetime:
-        raise ValueError('Type of Time_stamp must be datetime!')
+        raise ValueError('Stop_date can not be null!')
+    if type(stop_date) is datetime:
+        raise ValueError('Type of Stop_date must be datetime!')
 
     cursor = connection.cursor()
     format_str = """
