@@ -167,7 +167,7 @@ def new_batch(connection, start_date, description):
 
     return id_created_batch[0][0]
 
-
+# TODO: add is already closed
 def close_batch(connection, batch_id, stop_date):
     """
     Closes the existing batch, if it's not closed yet.

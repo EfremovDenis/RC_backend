@@ -2,6 +2,9 @@ from tkinter import Tk, Label, Button, Entry
 from Db_worker import DB_worker
 import sqlite3
 from datetime import datetime
+import Queue
+import time
+import threading
 
 
 class BackendGUI:
@@ -34,13 +37,43 @@ class BackendGUI:
         return True
 
     # TODO: Start here two threads FIFO and Parser
+    # TODO: set Start button enable = false
     def start(self):
         self.new_batch_id = DB_worker.new_batch(connection=self.connection, start_date=datetime.now(),
                                                 description=self.batch_desc)
+        self.message_queue = Queue.Queue()
+        self.can_read = True
+        print 'in start'
+
+        self.t1 = threading.Thread(target=self.read_from_bluetooth, args=[self])
+        self.t2 = threading.Thread(target=self.parse_message, args=(self,))
+
+        self.t1.start()
+        self.t2.start()
 
     # TODO: Stop FIFO reading, finish parsing and close batch
+    # TODO: set Stop button enable = false
     def stop(self):
+        print 'I\m in stop'
+        self.can_read = False
+        while self.message_queue.not_empty:
+            time.sleep(0.1)
         DB_worker.close_batch(connection=self.connection, batch_id=self.new_batch_id, stop_date=datetime.now())
+
+    # TODO: what wrong with the 2nd argument??? (read_from_bluetooth() takes exactly 1 argument (2 given))
+    def read_from_bluetooth(self, event):
+        i = 0
+        while self.can_read:
+            i += 1
+            self.message_queue.put('some_data ' + str(i))  # TODO: message from bluetooth
+            print 'Written ' + str(i)
+            time.sleep(1)
+
+    # TODO: what wrong with the 2nd argument??? (read_from_bluetooth() takes exactly 1 argument (2 given))
+    def parse_message(self, event):
+        while self.can_read or self.message_queue.not_empty:
+            message = self.message_queue.get() # TODO: parse the message
+            print message
 
 root = Tk()
 my_gui = BackendGUI(root)
