@@ -43,7 +43,6 @@ class BackendGUI:
                                                 description=self.batch_desc)
         self.message_queue = Queue.Queue()
         self.can_read = True
-        print 'in start'
 
         self.t1 = threading.Thread(target=self.read_from_bluetooth, args=[self])
         self.t2 = threading.Thread(target=self.parse_message, args=(self,))
@@ -54,9 +53,8 @@ class BackendGUI:
     # TODO: Stop FIFO reading, finish parsing and close batch
     # TODO: set Stop button enable = false
     def stop(self):
-        print 'I\m in stop'
         self.can_read = False
-        while self.message_queue.not_empty:
+        while not self.message_queue.empty():
             time.sleep(0.1)
         DB_worker.close_batch(connection=self.connection, batch_id=self.new_batch_id, stop_date=datetime.now())
 
@@ -71,7 +69,7 @@ class BackendGUI:
 
     # TODO: what wrong with the 2nd argument??? (read_from_bluetooth() takes exactly 1 argument (2 given))
     def parse_message(self, event):
-        while self.can_read or self.message_queue.not_empty:
+        while self.can_read or not self.message_queue.empty():
             message = self.message_queue.get() # TODO: parse the message
             print message
 
